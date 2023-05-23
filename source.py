@@ -29,6 +29,9 @@ class Song:
         self.__tempo = tempo
         self.__genre = music_genre
     
+    def get_id(self):
+        return self.__song_id
+    
     def get_name(self):
         return self.__name
     
@@ -75,14 +78,14 @@ class SongCreator(ABC):
 class NearestNeighbors:
     def __init__(self, n_neighbors) -> None:
         self.n_neighbors = n_neighbors
-        self.songs = []
+        self.songs = {}
     
     def fit(self,songs):
-        self.songs = songs
+        self.songs = {song.get_id(): song for song in songs}
     
     def kneighbors(self,song):
         distances = []
-        for s in self.songs:
+        for song_id,s in self.songs.items():
             distance = euclidean_distance(song,s)
             distances.append((distance,s))
         
@@ -134,9 +137,12 @@ n_neighbors = 10
 nn = NearestNeighbors(n_neighbors)
 nn.fit(songs)
 contador =0
+distances = {}
+
 for song in songs:
     neighbors = nn.kneighbors(song)
     for neighbor in neighbors:
+        contador +=1
         distance_value = euclidean_distance(song,neighbor)
         graph.add_edge(song,neighbor,weight=distance_value)
         print('Agrega Arista',contador)
