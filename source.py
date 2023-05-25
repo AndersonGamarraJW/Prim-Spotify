@@ -156,12 +156,25 @@ for song in songs:
         print('Agrega Arista',len(graph.edges))
 
  
-# Mostrar pesos de las aristas y nodos conectados
-for u, v, weight in graph.edges.data('weight'):
-    print("Nodo 1:", u.get_name())
-    print("Nodo 2:", v.get_name())
-    print("Peso de la arista:", weight)
-    print("---")
+def prim(graph, start_node, n_neighbors):
+    selected_nodes = set([start_node])
+    candidate_edges = []
+    similar_songs = []
+
+    while len(selected_nodes) < n_neighbors:
+        for node in selected_nodes:
+            candidate_edges.extend([(node, neighbor, data['weight']) for neighbor, data in graph[node].items() if neighbor not in selected_nodes])
+        
+        candidate_edges.sort(key=lambda x: x[2])  # Ordenar aristas por peso
+        
+        if not candidate_edges:
+            break
+        
+        min_edge = candidate_edges.pop(0)
+        selected_nodes.add(min_edge[1])
+        similar_songs.append((min_edge[0], min_edge[1], min_edge[2]))
+    
+    return similar_songs
 
 
 
