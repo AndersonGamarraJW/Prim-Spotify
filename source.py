@@ -143,9 +143,15 @@ for song in songs:
     neighbors = nn.kneighbors(song)
     for neighbor in neighbors:
         contador +=1
-        distance_value = euclidean_distance(song,neighbor)
-        graph.add_edge(song,neighbor,weight=distance_value)
-        print('Agrega Arista',contador)
+        neighbor_id = neighbor.get_id()
+        
+        if neighbor_id not in distances:
+            distance_value = euclidean_distance(song,neighbor)
+            distances[neighbor_id] = distance_value
+        
+        else:
+            graph.add_edge(song,neighbor,weight=distance_value)
+            print('Agrega Arista',len(graph.edges))
 
         
 
