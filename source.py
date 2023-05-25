@@ -151,8 +151,10 @@ for song in songs:
         
         else:
             distance_value = distances[neighbor_id]
-                
-        graph.add_edge(song,neighbor,weight=distance_value)
+        
+        if not graph.has_edge(song,neighbor) and not graph.has_edge(neighbor,song):        
+            graph.add_edge(song,neighbor,weight=distance_value)
+            
         print('Agrega Arista',len(graph.edges))
 
  
@@ -186,6 +188,38 @@ similar_songs = prim(graph, input_song, n_neighbors)
 print("Canciones similares:")
 for song1, song2, weight in similar_songs:
     print(f"- {song1.get_name()} <-> {song2.get_name()} (Peso: {weight})")
+
+
+
+# Crear un nuevo grafo para visualización
+visualization_graph = nx.Graph()
+
+# Agregar las canciones similares al grafo de visualización
+for song1, song2, weight in similar_songs:
+    visualization_graph.add_edge(song1, song2, weight=weight)
+
+# Dibujar el grafo utilizando la disposición spring_layout
+#pos = nx.spring_layout(visualization_graph)
+
+pos = nx.tree_layout(visualization_graph)
+
+
+# Dibujar los nodos
+nx.draw_networkx_nodes(visualization_graph, pos, node_size=200, node_color='lightblue')
+
+# Dibujar las aristas
+nx.draw_networkx_edges(visualization_graph, pos, width=1.0, alpha=0.5)
+
+# Etiquetas de los nodos
+labels = {song: song.get_name() for song in visualization_graph.nodes()}
+nx.draw_networkx_labels(visualization_graph, pos, labels, font_size=8)
+
+# Mostrar el grafo
+plt.title("Canciones similares")
+plt.axis('off')
+plt.show()
+ 
+
 
 
 """
