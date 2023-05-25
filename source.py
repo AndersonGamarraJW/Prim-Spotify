@@ -152,6 +152,13 @@ for song in songs:
             print('Agrega Arista',len(graph.edges))
 
  
+# Mostrar pesos de las aristas y nodos conectados
+for u, v, weight in graph.edges.data('weight'):
+    print("Nodo 1:", u.get_name())
+    print("Nodo 2:", v.get_name())
+    print("Peso de la arista:", weight)
+    print("---")
+
 
 
 
