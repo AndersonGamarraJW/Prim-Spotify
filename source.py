@@ -176,7 +176,20 @@ def prim(graph, start_node, n_neighbors):
     
     return similar_songs
 
+# Obtener la canción de entrada
+input_song = songs[0]  # Aquí puedes cambiar el índice para seleccionar otra canción de entrada
 
+# Generar lista de canciones similares
+similar_songs = prim(graph, input_song, n_neighbors)
+
+# Imprimir lista de canciones similares
+print("Canción de entrada:", input_song.get_name())
+print("Lista de canciones similares:")
+for song1, song2, weight in similar_songs:
+    print("Canción 1:", song1.get_name())
+    print("Canción 2:", song2.get_name())
+    print("Peso:", weight)
+    print("---")
 
 
 """
