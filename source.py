@@ -172,17 +172,26 @@ def prim(graph, start_node, n_neighbors):
         if not candidate_edges:
             break
         
-        min_edge = candidate_edges.pop(0)
+        min_edge = None
+        for edge in candidate_edges:
+            if edge[1] not in selected_nodes:
+                min_edge = edge
+                break
+            
+        if min_edge is None:
+            break
+        
+        candidate_edges.remove(min_edge)
         selected_nodes.add(min_edge[1])
         similar_songs.append((min_edge[0], min_edge[1], min_edge[2]))
     
     return similar_songs
 
 # Obtener la canción de entrada
-input_song = songs[0]  # Aquí puedes cambiar el índice para seleccionar otra canción de entrada
+input_song = songs[300]  # Aquí puedes cambiar el índice para seleccionar otra canción de entrada
 
 # Generar lista de canciones similares
-similar_songs = prim(graph, input_song, n_neighbors)
+similar_songs = prim(graph, input_song, 15)
 
 # Imprimir lista de canciones similares
 print("Canciones similares:")
@@ -199,9 +208,8 @@ for song1, song2, weight in similar_songs:
     visualization_graph.add_edge(song1, song2, weight=weight)
 
 # Dibujar el grafo utilizando la disposición spring_layout
-#pos = nx.spring_layout(visualization_graph)
+pos = nx.spring_layout(visualization_graph)
 
-pos = nx.tree_layout(visualization_graph)
 
 
 # Dibujar los nodos
