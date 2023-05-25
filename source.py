@@ -88,11 +88,11 @@ class NearestNeighbors:
         distances = []
         for song_id,s in self.songs.items():
             distance = euclidean_distance(song,s)
-            distances.append((distance,s))
+            distances.append((distance, s))
         
         distances.sort(key=lambda x:x[0])
         
-        neighbors = [neighbor for _, neighbor in distances[1:self.n_neighbors+1]]
+        neighbors = [neighbor for _ , neighbor in distances[1:self.n_neighbors+1]]
         
         return neighbors
       
