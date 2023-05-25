@@ -136,13 +136,11 @@ graph.add_nodes_from(songs)
 n_neighbors = 10
 nn = NearestNeighbors(n_neighbors)
 nn.fit(songs)
-contador =0
 distances = {}
 
 for song in songs:
     neighbors = nn.kneighbors(song)
     for neighbor in neighbors:
-        contador +=1
         neighbor_id = neighbor.get_id()
         
         if neighbor_id not in distances:
@@ -153,7 +151,7 @@ for song in songs:
             graph.add_edge(song,neighbor,weight=distance_value)
             print('Agrega Arista',len(graph.edges))
 
-        
+ 
 
 
 
