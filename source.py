@@ -29,6 +29,9 @@ class Song:
         self.__tempo = tempo
         self.__genre = music_genre
     
+    def get_id(self):
+        return self.__song_id
+
     def get_name(self):
         return self.__name
     
@@ -75,14 +78,15 @@ class SongCreator(ABC):
 class NearestNeighbors:
     def __init__(self, n_neighbors) -> None:
         self.n_neighbors = n_neighbors
-        self.songs = []
+        self.songs = {}
     
+   
     def fit(self,songs):
-        self.songs = songs
+        self.songs = {song.get_id(): song for song in songs}
     
     def kneighbors(self,song):
         distances = []
-        for s in self.songs:
+        for song_id,s in self.songs.items():
             distance = euclidean_distance(song,s)
             distances.append((distance,s))
         
@@ -133,15 +137,32 @@ graph.add_nodes_from(songs)
 n_neighbors = 10
 nn = NearestNeighbors(n_neighbors)
 nn.fit(songs)
-contador =0
+contador =0        
+distances = {}
+
 for song in songs:
     neighbors = nn.kneighbors(song)
     for neighbor in neighbors:
-        distance_value = euclidean_distance(song,neighbor)
-        graph.add_edge(song,neighbor,weight=distance_value)
-        print('Agrega Arista',contador)
-
+        neighbor_id = neighbor.get_id()
         
+        if neighbor_id not in distances:
+            distance_value = euclidean_distance(song,neighbor)
+            distances[neighbor_id] = distance_value
+        
+        else:
+            distance_value = distances[neighbor_id]
+                
+        graph.add_edge(song,neighbor,weight=distance_value)
+        print('Agrega Arista',len(graph.edges))
+
+ 
+# Mostrar pesos de las aristas y nodos conectados
+for u, v, weight in graph.edges.data('weight'):
+    print("Nodo 1:", u.get_name())
+    print("Nodo 2:", v.get_name())
+    print("Peso de la arista:", weight)
+    print("---")
+
 
 
 
