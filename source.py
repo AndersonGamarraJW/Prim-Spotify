@@ -4,6 +4,10 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 import math
+from PyQt6.QtWidgets import QApplication,QMainWindow,QTableView
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QStandardItemModel,QStandardItem
+ 
 
 class Song:
     def __init__(self,instance_id,artist_name,track_name,popularity,acousticness,
