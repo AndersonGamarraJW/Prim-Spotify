@@ -1,14 +1,50 @@
 from abc import ABC,abstractclassmethod
 from itertools import combinations
+import typing
+from PyQt6 import QtCore, QtGui
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 import math
-from PyQt6.QtWidgets import QApplication,QMainWindow,QTableView
+import sys
+from PyQt6.QtWidgets import QApplication,QMainWindow,QTableView, QWidget
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QStandardItemModel,QStandardItem
- 
 
+class CSVViewer(QMainWindow):
+    def __init__(self,data):
+        super().__init__()
+        
+        model = QStandardItemModel()
+        model.setColumnCount(len(data.columns))
+        
+        model.setHorizontalHeaderLabels(data.columns)
+        
+        for row in range(data.shape[0]):
+            for col in range(data.shape[1]):
+                item = QStandardItem(str(data.iloc[row,col]))
+                model.setItem(row,col,item)
+        
+        table_view = QTableView()
+        table_view.setModel(model)
+        
+        table_view.resizeColumnsToContents()
+        table_view.resizeRowsToContents()
+        
+        table_view.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)
+        table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
+        table_view.setSelectionMode(QTableView.SelectionMode.SingleSelection)
+        table_view.setHorizontalScrollMode(QTableView.ScrollMode.ScrollPerPixel)
+        table_view.setVerticalScrollMode(QTableView.ScrollMode.ScrollPerPixel)
+        
+        self.setMinimumSize(1200,800)
+        self.setCentralWidget(table_view)
+        self.setWindowTitle('CSV Viewer')
+    
+    def keyPressEvent(self,event):
+        if event.key() == Qt.Key.Key_Escape:
+            self.close()
+    
 class Song:
     def __init__(self,instance_id,artist_name,track_name,popularity,acousticness,
                  danceability,duration_ms, energy,instrumentalness,key,liveness,
@@ -204,7 +240,14 @@ for song1, song2, weight in similar_songs:
     print(f"- {song1.get_name()} <-> {song2.get_name()} (Peso: {weight})")
 
 
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = CSVViewer(df)
+    window.show()
+    
+    sys.exit(app.exec())
 
+"""
 # Crear un nuevo grafo para visualización
 visualization_graph = nx.Graph()
 
@@ -231,7 +274,7 @@ nx.draw_networkx_labels(visualization_graph, pos, labels, font_size=8)
 plt.title("Canciones similares")
 plt.axis('off')
 plt.show()
- 
+""" 
 
 
 
