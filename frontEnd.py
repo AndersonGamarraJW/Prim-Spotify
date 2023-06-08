@@ -1,7 +1,16 @@
 import sys
 import typing
 import pandas as pd
-from PyQt6.QtWidgets import QApplication,QMainWindow,QTableView, QWidget, QHBoxLayout,QVBoxLayout
+from PyQt6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QTableView, 
+    QWidget, 
+    QHBoxLayout,
+    QVBoxLayout,
+    QPushButton,
+    QLineEdit
+)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QStandardItemModel,QStandardItem
 
@@ -12,12 +21,14 @@ class CSVViewer(QTableView):
     def __init__(self,data):
         super().__init__()
         model = QStandardItemModel()
-        model.setColumnCount(len(data.columns))
-        model.setHorizontalHeaderLabels(data.columns)
+        column_names = ['track_name'] #Columnas que se desean mostrar
+        
+        model.setColumnCount(len(column_names))
+        model.setHorizontalHeaderLabels(column_names)
         for row in range(data.shape[0]):
-            for col in range(data.shape[1]):
-                item = QStandardItem(str(data.iloc[row,col]))
-                model.setItem(row,col,item)
+            item = QStandardItem(str(data.at[row,'track_name']))
+            model.setItem(row,0,item)
+    
         
         self.setModel(model)
         self.resizeColumnsToContents()
@@ -28,20 +39,42 @@ class CSVViewer(QTableView):
         self.setSelectionMode(QTableView.SelectionMode.SingleSelection)
         self.setHorizontalScrollMode(QTableView.ScrollMode.ScrollPerPixel)
         self.setVerticalScrollMode(QTableView.ScrollMode.ScrollPerPixel)
-         
         
-         
+        
+        
+        
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Song Recomended')
         self.setMinimumSize(1200,800)
-        principal_layout = QHBoxLayout()
-        #csv_viewer = QWidget()
+        #Widgets
+        self.__seeker = QLineEdit()
+        self.__seeker.setPlaceholderText('Input song')
+        
+        self.__find_button = QPushButton('Search')
+        self.__generate_list_button = QPushButton('Generate List')
         csv_viewer = CSVViewer(df)
-        principal_layout.addWidget(csv_viewer)
-        prev_csv_viewer = QWidget()
-        principal_layout.addWidget(prev_csv_viewer)
+        
+        
+        #Layouts
+        principal_layout = QHBoxLayout()
+        left_layout = QVBoxLayout()
+        right_layout = QVBoxLayout()
+        search_section_layout = QHBoxLayout()
+        
+        
+        left_layout.addLayout(search_section_layout)
+        
+        principal_layout.addLayout(left_layout)
+        principal_layout.addLayout(right_layout)
+
+        search_section_layout.addWidget(self.__seeker)
+        search_section_layout.addWidget(self.__find_button)
+        left_layout.addWidget(csv_viewer)
+        right_layout.addWidget(self.__generate_list_button)
+        
         background = QWidget()
         background.setLayout(principal_layout)
         self.setCentralWidget(background)
