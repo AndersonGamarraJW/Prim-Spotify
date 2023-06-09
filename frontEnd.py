@@ -108,7 +108,9 @@ class CustomButton(QPushButton):
         super().__init__()
         if objectName != None:
             self.setObjectName(objectName)
-        
+            self.setMaximumSize(150,200)
+    def sizeHint(self) -> QSize:
+        return QSize(150,30)    
     
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -132,9 +134,9 @@ class MainWindow(QMainWindow):
         
         right_layout.addStretch()
         right_layout.addWidget(self.__prev_csv_selection)
-        right_layout.addWidget(self.__generate_list_button)
+        right_layout.addWidget(self.__generate_list_button,alignment=Qt.AlignmentFlag.AlignCenter)
         right_layout.addStretch()
-        right_layout.setSpacing(REM)
+        right_layout.setSpacing(2*REM)
         #Layouts
         principal_layout = QHBoxLayout()
         left_layout = QVBoxLayout()
