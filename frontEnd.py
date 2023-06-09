@@ -31,8 +31,8 @@ df = pd.read_csv('music_genre.csv')
 
 class MainPalletColor:
     BLACK = '#222831'
-    PRINCIPAL = '#393E46'
-    SECOND = '#FFD369'
+    PRINCIPAL = '#DDDDDD'
+    CONTRAST = '#F05454'
     SHADOW = 'EEEEEE'
 
 class CSVViewer(QTableView):
@@ -65,13 +65,15 @@ class PrevCsvSelection(QWidget):
         super().__init__()
         main_layout = QFormLayout(self)
         main_layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
+        main_layout.setFormAlignment(Qt.AlignmentFlag.AlignCenter)
         
         self.__track_name_label = QLabel()
         self.__artist_name_label = QLabel()
         self.__popularity_label = QLabel()
         self.__duration_label = QLabel()
         self.__obt_label = QLabel()
-        self.__genre = QLabel() 
+        self.__genre = QLabel()
+        
         main_layout.addRow('Nombre: ',self.__track_name_label)
         main_layout.addRow('Artista: ',self.__artist_name_label)
         main_layout.addRow('Popularidad: ',self.__popularity_label)
@@ -79,8 +81,8 @@ class PrevCsvSelection(QWidget):
         main_layout.addRow('Fecha de Lanzamiento: ',self.__obt_label)
         main_layout.addRow('Genero: ',self.__genre)
         
+        
         self.setObjectName('csv-selection')
-        self.setMinimumSize(300,100)
         
         # Crear el efecto de sombra
         shadow = QGraphicsDropShadowEffect()
