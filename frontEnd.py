@@ -13,23 +13,28 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QFormLayout,
     QLabel,
-    QSpacerItem,
-    QSizePolicy,
+    QStyleOption,
+    QStyle,
+    QGraphicsDropShadowEffect
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import (
     QStandardItemModel,
     QStandardItem,
-    QPalette,
-    QColor,
-    QPaintEvent
+    QPainter,
+    QColor
 )
 
 REM = 16
 
 df = pd.read_csv('music_genre.csv')
 
- 
+class MainPalletColor:
+    BLACK = '#222831'
+    PRINCIPAL = '#393E46'
+    SECOND = '#FFD369'
+    SHADOW = 'EEEEEE'
+
 class CSVViewer(QTableView):
     def __init__(self,data):
         super().__init__()
@@ -74,8 +79,24 @@ class PrevCsvSelection(QWidget):
         main_layout.addRow('Fecha de Lanzamiento: ',self.__obt_label)
         main_layout.addRow('Genero: ',self.__genre)
         
+        self.setObjectName('csv-selection')
         self.setMinimumSize(300,100)
+        
+        # Crear el efecto de sombra
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(10)
+        shadow.setColor(QColor(MainPalletColor.SHADOW))
+        shadow.setOffset(0, 0)
+
+        # Aplicar el efecto de sombra al widget
+        self.setGraphicsEffect(shadow)
+
      
+    def paintEvent(self, event):
+        o = QStyleOption()
+        o.initFrom(self)
+        painter = QPainter(self)
+        self.style().drawPrimitive(QStyle.PrimitiveElement.PE_Widget,o,painter,self)
         
         
 
