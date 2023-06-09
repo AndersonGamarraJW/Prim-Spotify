@@ -104,8 +104,8 @@ class PrevCsvSelection(QWidget):
         
 
 class CustomButton(QPushButton):
-    def __init__(self,objectName=None):
-        super().__init__()
+    def __init__(self,text,objectName=None):
+        super().__init__(text=text)
         if objectName != None:
             self.setObjectName(objectName)
         
@@ -116,8 +116,7 @@ class CustomButton(QPushButton):
         shadow.setColor(QColor(MainPalletColor.SHADOW))
         shadow.setOffset(0,0)
         self.setGraphicsEffect(shadow)
-        
-        
+          
     def sizeHint(self) -> QSize:
         return QSize(150,30)    
     
@@ -137,7 +136,7 @@ class MainWindow(QMainWindow):
         right_layout = QVBoxLayout()
         
         #Generate List Button
-        self.__generate_list_button = CustomButton('generate-list-button')
+        self.__generate_list_button = CustomButton('Generate List','generate-list-button')
         
         self.__prev_csv_selection = PrevCsvSelection()
         
