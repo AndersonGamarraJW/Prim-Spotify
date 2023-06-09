@@ -93,6 +93,7 @@ class PrevCsvSelection(QWidget):
         # Aplicar el efecto de sombra al widget
         self.setGraphicsEffect(shadow)
 
+        self.setMinimumSize(225,400)
      
     def paintEvent(self, event):
         o = QStyleOption()
