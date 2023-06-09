@@ -1,5 +1,5 @@
 import sys
-import typing
+import os
 from PyQt6 import QtCore, QtGui
 import pandas as pd
 from PyQt6.QtWidgets import (
@@ -28,7 +28,8 @@ from PyQt6.QtGui import (
 REM = 16
 
 df = pd.read_csv('music_genre.csv')
-         
+
+ 
 class CSVViewer(QTableView):
     def __init__(self,data):
         super().__init__()
@@ -129,6 +130,12 @@ class MainWindow(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    file_path = os.path.abspath(__file__)
+    dir_file_path = os.path.dirname(file_path)
+    style_path = os.path.join(dir_file_path,'style.css')
+    with open(style_path,'r') as f:
+        style = f.read()
+    app.setStyleSheet(style)
     main_window = MainWindow()
     main_window.show()
     app.exec()
