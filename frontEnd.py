@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
     QStyle,
     QGraphicsDropShadowEffect
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt,QSize
 from PyQt6.QtGui import (
     QStandardItemModel,
     QStandardItem,
@@ -103,6 +103,13 @@ class PrevCsvSelection(QWidget):
         
         
 
+class CustomButton(QPushButton):
+    def __init__(self,objectName=None):
+        super().__init__()
+        if objectName != None:
+            self.setObjectName(objectName)
+        
+    
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -118,7 +125,9 @@ class MainWindow(QMainWindow):
         self.__right_window_widget = QWidget()
         right_layout = QVBoxLayout()
         
-        self.__generate_list_button = QPushButton('Generate List')
+        #Generate List Button
+        self.__generate_list_button = CustomButton('generate-list-button')
+        
         self.__prev_csv_selection = PrevCsvSelection()
         
         right_layout.addStretch()
