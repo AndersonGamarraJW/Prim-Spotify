@@ -1,6 +1,6 @@
 import sys
 import typing
-from PyQt6 import QtCore
+from PyQt6 import QtCore, QtGui
 import pandas as pd
 from PyQt6.QtWidgets import (
     QApplication,
@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (
     QFormLayout,
     QLabel,
     QSpacerItem,
-    QSizePolicy
+    QSizePolicy,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QStandardItemModel,QStandardItem, QPalette, QColor
@@ -68,6 +68,8 @@ class PrevCsvSelection(QWidget):
         main_layout.addRow('Genero: ',self.__genre)
         
         self.setMinimumSize(300,100)
+    
+    
         
         
 
