@@ -108,7 +108,16 @@ class CustomButton(QPushButton):
         super().__init__()
         if objectName != None:
             self.setObjectName(objectName)
-            self.setMaximumSize(150,200)
+        
+        self.setMaximumSize(150,200)
+        
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(10)
+        shadow.setColor(QColor(MainPalletColor.SHADOW))
+        shadow.setOffset(0,0)
+        self.setGraphicsEffect(shadow)
+        
+        
     def sizeHint(self) -> QSize:
         return QSize(150,30)    
     
