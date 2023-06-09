@@ -17,7 +17,13 @@ from PyQt6.QtWidgets import (
     QSizePolicy,
 )
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QStandardItemModel,QStandardItem, QPalette, QColor
+from PyQt6.QtGui import (
+    QStandardItemModel,
+    QStandardItem,
+    QPalette,
+    QColor,
+    QPaintEvent
+)
 
 REM = 16
 
@@ -68,8 +74,7 @@ class PrevCsvSelection(QWidget):
         main_layout.addRow('Genero: ',self.__genre)
         
         self.setMinimumSize(300,100)
-    
-    
+     
         
         
 
