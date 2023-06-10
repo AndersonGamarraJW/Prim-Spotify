@@ -33,7 +33,9 @@ class MainPalletColor:
     BLACK = '#222831'
     PRINCIPAL = '#DDDDDD'
     CONTRAST = '#F05454'
-    SHADOW = 'EEEEEE'
+    LIGHT = '#EEEEEE'
+    SHADOW = '#ababab'
+    INTENSE_SHADOW = '#696969'
 
 class CSVViewer(QTableView):
     def __init__(self,data):
@@ -57,8 +59,18 @@ class CSVViewer(QTableView):
         self.setSelectionMode(QTableView.SelectionMode.SingleSelection)
         self.setHorizontalScrollMode(QTableView.ScrollMode.ScrollPerPixel)
         self.setVerticalScrollMode(QTableView.ScrollMode.ScrollPerPixel)
-    
-        
+
+        self.horizontalHeader().setVisible(False)
+        self.verticalHeader().setVisible(False)
+        self.setObjectName('csv-viewer')
+
+        self.setShowGrid(False)
+        #Shadow
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(10)
+        shadow.setColor(QColor(MainPalletColor.SHADOW))
+        shadow.setOffset(0, 0)
+        self.setGraphicsEffect(shadow) 
         
 class PrevCsvSelection(QWidget):
     def __init__(self):

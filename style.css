@@ -6,5 +6,11 @@
     background-color: #F05454;
     color: #222831;
     border-radius: 10px;
-    
+}
+
+#csv-viewer{
+    background-color: red;
+    color: #EEEEEE;
+    border-radius: 10px;
+    padding: 16px;
 }
