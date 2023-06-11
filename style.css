@@ -9,8 +9,23 @@
 }
 
 #csv-viewer{
-    background-color: red;
+    background-color: #222831;
     color: #EEEEEE;
     border-radius: 10px;
     padding: 16px;
 }
+QTableView::item {
+    color: #DDDDDD;                    
+    background-color: #181c22;
+    margin-top: 5px;          
+    border-radius: 10px;
+    padding: 10px;
+}
+
+QTableView::item:hover {
+    margin-top: 5px;
+    margin-bottom: 15px;
+    background-color: #DDDDDD;
+    color: black;
+}
+

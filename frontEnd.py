@@ -15,14 +15,21 @@ from PyQt6.QtWidgets import (
     QLabel,
     QStyleOption,
     QStyle,
-    QGraphicsDropShadowEffect
+    QGraphicsDropShadowEffect,
+    QStyledItemDelegate,
+    QStyleOptionViewItem
 )
-from PyQt6.QtCore import Qt,QSize
+from PyQt6.QtCore import Qt,QSize,QEvent,QPropertyAnimation,QByteArray,QVariantAnimation,QEasingCurve, QTimer, QAbstractAnimation
 from PyQt6.QtGui import (
     QStandardItemModel,
     QStandardItem,
     QPainter,
-    QColor
+    QColor,
+    QPalette,
+    QPen,
+    QBrush,
+    QCursor,
+    QPainterPath
 )
 
 REM = 16
@@ -37,6 +44,32 @@ class MainPalletColor:
     SHADOW = '#ababab'
     INTENSE_SHADOW = '#696969'
 
+
+    
+class ResizableItemDelegate(QStyledItemDelegate):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.hovered_index = None
+        self.shadow_widget = None
+
+    def paint(self, painter, option, index):
+        if index == self.hovered_index:
+
+            # Modificar el tamaño del rectángulo solo si el ítem está siendo resaltado
+            option.rect.setHeight(60)  # Establecer la altura deseada aquí
+            
+        super().paint(painter, option, index)
+
+    def editorEvent(self, event, model, option, index):
+        if event.type() == QEvent.Type.MouseMove:
+            self.hovered_index = index
+            self.parent().viewport().update()
+        elif event.type() == QEvent.MouseLeave:
+            self.hovered_index = None
+            self.parent().viewport().update()
+        
+        return super().editorEvent(event, model, option, index)
+    
 class CSVViewer(QTableView):
     def __init__(self,data):
         super().__init__()
@@ -49,7 +82,6 @@ class CSVViewer(QTableView):
             item = QStandardItem(str(data.at[row,'track_name']))
             model.setItem(row,0,item)
     
-        
         self.setModel(model)
         self.resizeColumnsToContents()
         self.resizeRowsToContents()
@@ -70,7 +102,17 @@ class CSVViewer(QTableView):
         shadow.setBlurRadius(10)
         shadow.setColor(QColor(MainPalletColor.SHADOW))
         shadow.setOffset(0, 0)
-        self.setGraphicsEffect(shadow) 
+        self.setGraphicsEffect(shadow)
+
+        
+        self.entered.connect(self._print_index)
+        
+        delegate = ResizableItemDelegate(self)
+        self.setItemDelegate(delegate)
+        
+    def _print_index(self,index):
+        ...
+        
         
 class PrevCsvSelection(QWidget):
     def __init__(self):
