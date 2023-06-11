@@ -30,7 +30,10 @@ from PyQt6.QtGui import (
     QBrush,
     QCursor,
     QPainterPath,
-    QPixmap
+    QPixmap,
+    QPolygon,
+    QRegion,
+    QBitmap
 )
 
 import spotipy
@@ -149,7 +152,8 @@ class CSVViewer(QTableView):
         print(album_cover_url)
         
         self._prev_csv_selection_widget.update_data(track_name, artist_name, popularity, duration, obt, genre,album_cover_url)
-        
+      
+    
 class PrevCsvSelection(QWidget):
     def __init__(self):
         super().__init__()
