@@ -29,7 +29,8 @@ from PyQt6.QtGui import (
     QPen,
     QBrush,
     QCursor,
-    QPainterPath
+    QPainterPath,
+    QPixmap
 )
 
 import spotipy
@@ -141,20 +142,29 @@ class CSVViewer(QTableView):
         result = SPOTIFY.search(q=query, type='track', limit=1)
         
         if result['tracks']['items']:
-            album_cover_url = result['tracks']['items'][0]['album']['images'][0]['url']
+            album_cover_url = result['tracks']['items'][0]['album']['images'][1]['url']
         else:
             album_cover_url =''
             
         print(album_cover_url)
         
-        self._prev_csv_selection_widget.update_data(track_name, artist_name, popularity, duration, obt, genre)
+        self._prev_csv_selection_widget.update_data(track_name, artist_name, popularity, duration, obt, genre,album_cover_url)
         
 class PrevCsvSelection(QWidget):
     def __init__(self):
         super().__init__()
-        main_layout = QFormLayout(self)
-        main_layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
-        main_layout.setFormAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        main_layout = QVBoxLayout()
+        info_song_layout = QFormLayout()
+        
+        self.__album_image = QLabel()
+        self.__album_image.setObjectName('album-cover-img')
+        main_layout.addWidget(self.__album_image,alignment=Qt.AlignmentFlag.AlignCenter)
+        main_layout.addLayout(info_song_layout)
+        
+        info_song_layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
+        info_song_layout.setFormAlignment(Qt.AlignmentFlag.AlignCenter)
+        
         
         self.__track_name_label = QLabel()
         self.__artist_name_label = QLabel()
@@ -163,16 +173,16 @@ class PrevCsvSelection(QWidget):
         self.__obt_label = QLabel()
         self.__genre = QLabel()
         
-        main_layout.addRow('Nombre: ',self.__track_name_label)
-        main_layout.addRow('Artista: ',self.__artist_name_label)
-        main_layout.addRow('Popularidad: ',self.__popularity_label)
-        main_layout.addRow('Duration: ',self.__duration_label)
-        main_layout.addRow('Fecha de Lanzamiento: ',self.__obt_label)
-        main_layout.addRow('Genero: ',self.__genre)
+        info_song_layout.addRow('Nombre: ',self.__track_name_label)
+        info_song_layout.addRow('Artista: ',self.__artist_name_label)
+        info_song_layout.addRow('Popularidad: ',self.__popularity_label)
+        info_song_layout.addRow('Duration: ',self.__duration_label)
+        info_song_layout.addRow('Fecha de Lanzamiento: ',self.__obt_label)
+        info_song_layout.addRow('Genero: ',self.__genre)
         
         
         self.setObjectName('csv-selection')
-        
+        self.setLayout(main_layout)
         # Crear el efecto de sombra
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(10)
@@ -181,16 +191,24 @@ class PrevCsvSelection(QWidget):
 
         # Aplicar el efecto de sombra al widget
         self.setGraphicsEffect(shadow)
-        self.setMaximumSize(300,400)
-        self.setMinimumSize(300,400)
+        self.setMaximumSize(325,500)
+        self.setMinimumSize(325,500)
     
-    def update_data(self, track_name, artist_name, popularity, duration, obt, genre):
+    def update_data(self, track_name, artist_name, popularity, duration, obt, genre,album_url):
         self.__track_name_label.setText(track_name)
         self.__artist_name_label.setText(artist_name)
         self.__popularity_label.setText(str(popularity))
         self.__duration_label.setText(str(duration))
         self.__obt_label.setText(obt)
         self.__genre.setText(genre)
+        
+        if album_url:
+            pixmap = QPixmap()
+            pixmap.loadFromData(requests.get(album_url).content)
+            self.__album_image.setPixmap(pixmap.scaled(300,300))
+        else:
+            self.__album_image.clear()
+            
         
     
     def paintEvent(self, event):
