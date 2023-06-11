@@ -31,6 +31,21 @@ from PyQt6.QtGui import (
     QCursor,
     QPainterPath
 )
+
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+import requests
+
+
+#Spotify API
+CLIENT_ID = 'e089516fb6b34b8087b8c29bb46a02f5'
+CLIENT_SECRET = '90e62985226f4e718232b3314f4ab8b2'
+credentials_manager = SpotifyClientCredentials(
+    client_id=CLIENT_ID,
+    client_secret=CLIENT_SECRET
+)
+SPOTIFY = spotipy.Spotify(client_credentials_manager=credentials_manager)
+
 REM = 16
 
 df = pd.read_csv('music_genre.csv')
@@ -104,7 +119,7 @@ class CSVViewer(QTableView):
         self.setGraphicsEffect(shadow)
 
         
-        self.entered.connect(self._print_index)
+        #self.entered.connect(self._print_index)
         
         delegate = ResizableItemDelegate(self)
         self.setItemDelegate(delegate)
@@ -121,6 +136,17 @@ class CSVViewer(QTableView):
         duration = row_data['duration_ms']
         obt = row_data['obtained_date']
         genre = row_data['music_genre']
+        
+        query = f'track:{track_name} artist:{artist_name}'
+        result = SPOTIFY.search(q=query, type='track', limit=1)
+        
+        if result['tracks']['items']:
+            album_cover_url = result['tracks']['items'][0]['album']['images'][0]['url']
+        else:
+            album_cover_url =''
+            
+        print(album_cover_url)
+        
         self._prev_csv_selection_widget.update_data(track_name, artist_name, popularity, duration, obt, genre)
         
 class PrevCsvSelection(QWidget):
@@ -165,6 +191,7 @@ class PrevCsvSelection(QWidget):
         self.__duration_label.setText(str(duration))
         self.__obt_label.setText(obt)
         self.__genre.setText(genre)
+        
     
     def paintEvent(self, event):
         o = QStyleOption()
