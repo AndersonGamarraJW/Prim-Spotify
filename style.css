@@ -1,3 +1,9 @@
+
+#background{
+    background-color:white;
+}
+MainWindow{
+}
 #csv-selection {
     background-color: #DDDDDD;
     border-radius: 10px;
@@ -7,7 +13,19 @@
     color: #222831;
     border-radius: 10px;
 }
-
+#seeker-input{
+    background-color: #DDDDDD;
+    border: none;
+    height: 40px;
+    border-radius: 10px;
+    padding-left: 15px;
+}
+#search-button{
+    background-color: #F05454;
+    color: #222831;
+    border-radius: 10px;
+    height: 10px;
+}
 #csv-viewer{
     background-color: #222831;
     color: #EEEEEE;

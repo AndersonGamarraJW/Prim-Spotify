@@ -31,7 +31,6 @@ from PyQt6.QtGui import (
     QCursor,
     QPainterPath
 )
-
 REM = 16
 
 df = pd.read_csv('music_genre.csv')
@@ -64,15 +63,15 @@ class ResizableItemDelegate(QStyledItemDelegate):
         if event.type() == QEvent.Type.MouseMove:
             self.hovered_index = index
             self.parent().viewport().update()
-        elif event.type() == QEvent.MouseLeave:
-            self.hovered_index = None
-            self.parent().viewport().update()
         
         return super().editorEvent(event, model, option, index)
     
 class CSVViewer(QTableView):
-    def __init__(self,data):
+    def __init__(self,data,prev_csv_selecion_widget):
         super().__init__()
+        self._data = data
+        self._prev_csv_selection_widget = prev_csv_selecion_widget
+        
         model = QStandardItemModel()
         column_names = ['track_name'] #Columnas que se desean mostrar
         
@@ -110,9 +109,19 @@ class CSVViewer(QTableView):
         delegate = ResizableItemDelegate(self)
         self.setItemDelegate(delegate)
         
-    def _print_index(self,index):
-        ...
+        self.clicked.connect(self._print_index)
         
+    def _print_index(self,index):
+        selected_row = index.row()
+        #track_name = str(self.model().data(self.model().index(selected_row, 0)))
+        track_name = index.data()
+        row_data = self._data[self._data['track_name'] == track_name].iloc[0]
+        artist_name = row_data['artist_name']
+        popularity = row_data['popularity']
+        duration = row_data['duration_ms']
+        obt = row_data['obtained_date']
+        genre = row_data['music_genre']
+        self._prev_csv_selection_widget.update_data(track_name, artist_name, popularity, duration, obt, genre)
         
 class PrevCsvSelection(QWidget):
     def __init__(self):
@@ -146,9 +155,17 @@ class PrevCsvSelection(QWidget):
 
         # Aplicar el efecto de sombra al widget
         self.setGraphicsEffect(shadow)
-
-        self.setMinimumSize(225,400)
-     
+        self.setMaximumSize(300,400)
+        self.setMinimumSize(300,400)
+    
+    def update_data(self, track_name, artist_name, popularity, duration, obt, genre):
+        self.__track_name_label.setText(track_name)
+        self.__artist_name_label.setText(artist_name)
+        self.__popularity_label.setText(str(popularity))
+        self.__duration_label.setText(str(duration))
+        self.__obt_label.setText(obt)
+        self.__genre.setText(genre)
+    
     def paintEvent(self, event):
         o = QStyleOption()
         o.initFrom(self)
@@ -182,8 +199,19 @@ class MainWindow(QMainWindow):
         #Widgets
         self.__seeker = QLineEdit()
         self.__seeker.setPlaceholderText('Input song')
-        self.__find_button = QPushButton('Search')
-        csv_viewer = CSVViewer(df)
+        self.__seeker.setObjectName('seeker-input')
+        shadow_seeker = QGraphicsDropShadowEffect()
+        shadow_seeker.setBlurRadius(10)
+        shadow_seeker.setColor(QColor(MainPalletColor.SHADOW))
+        shadow_seeker.setOffset(0,0)
+        self.__seeker.setGraphicsEffect(shadow_seeker)
+
+        self.__find_button = CustomButton('Search','search-button')
+        
+        
+        self.__prev_csv_selection = PrevCsvSelection()
+
+        csv_viewer = CSVViewer(df,self.__prev_csv_selection)
         
         #WidgetWindow Right
         self.__right_window_widget = QWidget()
@@ -192,7 +220,6 @@ class MainWindow(QMainWindow):
         #Generate List Button
         self.__generate_list_button = CustomButton('Generate List','generate-list-button')
         
-        self.__prev_csv_selection = PrevCsvSelection()
         
         right_layout.addStretch()
         right_layout.addWidget(self.__prev_csv_selection)
@@ -212,14 +239,18 @@ class MainWindow(QMainWindow):
         principal_layout.addLayout(left_layout)
         principal_layout.addLayout(right_layout)
 
-        search_section_layout.addWidget(self.__seeker)
-        search_section_layout.addWidget(self.__find_button)
+        search_section_layout.addWidget(self.__seeker,alignment=Qt.AlignmentFlag.AlignVCenter)
+        search_section_layout.addWidget(self.__find_button,alignment=Qt.AlignmentFlag.AlignVCenter)
         left_layout.addWidget(csv_viewer)
         
         
+       
+        
         background = QWidget()
         background.setLayout(principal_layout)
+        background.setObjectName('background')
         self.setCentralWidget(background)
+        
     
     def sizeHint(self) -> QtCore.QSize:
         return QtCore.QSize(1200,900)
