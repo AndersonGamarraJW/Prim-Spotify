@@ -303,7 +303,7 @@ class CSVViewer(QTableView):
             
         print(album_cover_url)
         
-        self._prev_csv_selection_widget.update_data(track_name, artist_name, popularity, duration, obt, genre,album_cover_url,album_url,artist_url,media_url)
+        self._prev_csv_selection_widget.update_data(track_name, artist_name, popularity, duration, obt, genre,album_cover_url,album_url,artist_url,media_url,selected_row)
       
     
 class PrevCsvSelection(QWidget):
@@ -311,10 +311,13 @@ class PrevCsvSelection(QWidget):
         super().__init__()
         #Dir Icon Path
         dir_icon_path = DirIconPath()
+        #Values
+        self.__current_song = None
         #Layouts
         main_layout = QVBoxLayout()
         info_song_layout = QFormLayout()
         buttons_layout = QHBoxLayout()
+        
         
         
         self.__album_image = QLabel()
@@ -381,7 +384,8 @@ class PrevCsvSelection(QWidget):
         self.setMaximumSize(325,500)
         self.setMinimumSize(325,500)
     
-    def update_data(self, track_name, artist_name, popularity, duration, obt, genre,album_cover_url,album_url,artist_url,media_url):
+    def update_data(self, track_name, artist_name, popularity, duration, obt, genre,album_cover_url,album_url,artist_url,media_url,selected_song):
+        self.__current_song = selected_song
         self.__track_name_label.setText(track_name)
         self.__artist_name_label.setText(artist_name)
         self.__popularity_label.setText(str(popularity))
@@ -419,6 +423,8 @@ class PrevCsvSelection(QWidget):
         if self._artist_url != None:
             QDesktopServices.openUrl(QUrl(self._artist_url))
         
+    def get_current_song(self):
+        return self.__current_song
     
     def paintEvent(self, event):
         o = QStyleOption()
@@ -503,8 +509,11 @@ class CustomButton(QPushButton):
         return QSize(150,30)
     
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self,graph_nx,songs_df):
         super().__init__()
+        # Variables
+        self.__graph_df = graph_nx
+        self.__songs_df = songs_df
         self.setWindowTitle('Song Recomended')
         #self.setMinimumSize(1200,800)
         #Widgets
@@ -554,7 +563,7 @@ class MainWindow(QMainWindow):
         search_section_layout.addWidget(self.__find_button,alignment=Qt.AlignmentFlag.AlignVCenter)
         left_layout.addWidget(csv_viewer)
         
-        
+        self.__generate_list_button.clicked.connect(self._generate_list)
        
         
         background = QWidget()
@@ -562,12 +571,80 @@ class MainWindow(QMainWindow):
         background.setObjectName('background')
         self.setCentralWidget(background)
         
+    def _generate_list(self):
+        
+        input_song = self.__songs_df[self.__prev_csv_selection.get_current_song()]  # Aquí puedes cambiar el índice para seleccionar otra canción de entrada
+
+        # Generar lista de canciones similares
+        similar_songs = prim(self.__graph_df, input_song, 15)
+
+        print('Cancion Base',input_song.get_name())
+        # Imprimir lista de canciones similares
+        print("Canciones similares:")
+        for song1, song2, weight in similar_songs:
+            print(f"- {song1.get_name()} <-> {song2.get_name()} (Peso: {weight})")
     
     def sizeHint(self) -> QtCore.QSize:
         return QtCore.QSize(1200,900)
+
+
+def main():
+    graph = nx.Graph()
+    songs = df.apply(create_song_from_row,axis=1).tolist()
+    graph.add_nodes_from(songs)
+    
+    #Vecinos cercanos
+    n_neighbors = 10
+    nn = NearestNeighbors(n_neighbors)
+    nn.fit(songs)
+    contador = 0        
+    distances = {}
+    
+    for song in songs:
+        neighbors = nn.kneighbors(song)
+        for neighbor in neighbors:
+            neighbor_id = neighbor.get_id()
+        
+            if neighbor_id not in distances:
+                distance_value = euclidean_distance(song,neighbor)
+                distances[neighbor_id] = distance_value
+        
+            else:
+                distance_value = distances[neighbor_id]
+        
+            if not graph.has_edge(song,neighbor) and not graph.has_edge(neighbor,song):        
+                graph.add_edge(song,neighbor,weight=distance_value)
+            
+            print('Agrega Arista',len(graph.edges))
+    
+    
+    """
+    # Obtener la canción de entrada
+    input_song = songs[210]  # Aquí puedes cambiar el índice para seleccionar otra canción de entrada
+
+    # Generar lista de canciones similares
+    similar_songs = prim(graph, input_song, 15)
+
+    print('Cancion Base',input_song.get_name())
+    # Imprimir lista de canciones similares
+    print("Canciones similares:")
+    for song1, song2, weight in similar_songs:
+        print(f"- {song1.get_name()} <-> {song2.get_name()} (Peso: {weight})")
+    """
+    app = QApplication(sys.argv)
+    file_path = os.path.abspath(__file__)
+    dir_file_path = os.path.dirname(file_path)
+    style_path = os.path.join(dir_file_path,'style.css')
+    with open(style_path,'r') as f:
+        style = f.read()
+    app.setStyleSheet(style)
+    main_window = MainWindow(graph,songs)
+    main_window.show()
+    app.exec()
     
 
 if __name__ == '__main__':
+    """
     app = QApplication(sys.argv)
     file_path = os.path.abspath(__file__)
     dir_file_path = os.path.dirname(file_path)
@@ -578,3 +655,5 @@ if __name__ == '__main__':
     main_window = MainWindow()
     main_window.show()
     app.exec()
+    """
+    main()
