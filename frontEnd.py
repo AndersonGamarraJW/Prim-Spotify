@@ -565,7 +565,7 @@ class SongListWindow(QWidget):
         super().__init__()
         self._main_layout = QVBoxLayout(self)
         
-        
+        self.setWindowTitle('List Recomended')
         for song_relation_tuple in similar_songs:
             #song_relation_tuple : (NodeSource : SongClass , NodeDest : SongClass , Weight:Float)
             self._main_layout.addWidget(SongSimilarInfo(
