@@ -37,7 +37,7 @@ from PyQt6.QtGui import (
     QIcon,
     QDesktopServices
 )
-
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import requests
@@ -162,15 +162,17 @@ class CSVViewer(QTableView):
             album_cover_url = result['tracks']['items'][0]['album']['images'][1]['url']
             album_url = result['tracks']['items'][0]['album']['external_urls']['spotify']
             artist_url = result['tracks']['items'][0]['artists'][0]['external_urls']['spotify']
+            media_url = result['tracks']['items'][0]['preview_url']
         else:
             album_cover_url =''
             album_url = None
             artist_url = None
+            media_url = None
 
             
         print(album_cover_url)
         
-        self._prev_csv_selection_widget.update_data(track_name, artist_name, popularity, duration, obt, genre,album_cover_url,album_url,artist_url)
+        self._prev_csv_selection_widget.update_data(track_name, artist_name, popularity, duration, obt, genre,album_cover_url,album_url,artist_url,media_url)
       
     
 class PrevCsvSelection(QWidget):
@@ -203,6 +205,13 @@ class PrevCsvSelection(QWidget):
             dir_icon_path.getIconFilePath('album-black-icon.png'),
             True
         )
+        self.__preview_play_button = PlayMediaIconButton(
+            dir_icon_path.getIconFilePath('play-white-icon.png'),
+            dir_icon_path.getIconFilePath('play-black-icon.png'),
+            True
+        )
+            
+        
         self._artist_url = None
         self._album_url = None
         self.__artist_button.clicked.connect(self._open_artist_spotify)
@@ -210,6 +219,7 @@ class PrevCsvSelection(QWidget):
         
         buttons_layout.addWidget(self.__artist_button,alignment=Qt.AlignmentFlag.AlignHCenter)
         buttons_layout.addWidget(self.__album_button,alignment=Qt.AlignmentFlag.AlignHCenter)
+        buttons_layout.addWidget(self.__preview_play_button,alignment=Qt.AlignmentFlag.AlignHCenter)
         main_layout.addLayout(buttons_layout)
         
         self.__track_name_label = QLabel()
@@ -240,7 +250,7 @@ class PrevCsvSelection(QWidget):
         self.setMaximumSize(325,500)
         self.setMinimumSize(325,500)
     
-    def update_data(self, track_name, artist_name, popularity, duration, obt, genre,album_cover_url,album_url,artist_url):
+    def update_data(self, track_name, artist_name, popularity, duration, obt, genre,album_cover_url,album_url,artist_url,media_url):
         self.__track_name_label.setText(track_name)
         self.__artist_name_label.setText(artist_name)
         self.__popularity_label.setText(str(popularity))
@@ -248,6 +258,8 @@ class PrevCsvSelection(QWidget):
         self.__obt_label.setText(obt)
         self.__genre.setText(genre)
         
+        if media_url != None:
+            self.__preview_play_button.set_media_url(media_url)
         
         if album_url != None:
             self._album_url = album_url
@@ -315,7 +327,33 @@ class IconButton(QPushButton):
     def leaveEvent(self, event) -> None:
         self.setIcon(self._main_icon)
         super().leaveEvent(event)
+
+class PlayMediaIconButton(IconButton):
+    def __init__(self, icon_path,togle_icon_path='', toogle=False,media_url=None, text='', objectName=None):
+        super().__init__(icon_path, togle_icon_path, toogle, text, objectName)
+        self.setCheckable(True)
+        abs_program_path = os.path.abspath(__file__)
+        program_dir_path = os.path.dirname(abs_program_path)
+        self._media_url = media_url
+        self._media_file_name = 'preview.mp3'
+        self._media_path = os.path.join(program_dir_path,self._media_file_name)
+        self._media_player = QMediaPlayer()
+        self._audio_output = QAudioOutput()
+        self._media_player.setAudioOutput(self._audio_output)
         
+        self.clicked.connect(self.play_media)
+     
+    def play_media(self,checked):
+        self._media_player.setPosition(0)
+        self._media_player.setSource(QUrl(self._media_file_name))
+        self._media_player.play()
+        
+    def set_media_url(self,value):
+        self._media_url = value
+        response = requests.get(self._media_url)
+        with open(self._media_file_name, "wb") as file:
+            file.write(response.content)
+            
 class CustomButton(QPushButton):
     def __init__(self,text,objectName=None):
         super().__init__(text=text)
