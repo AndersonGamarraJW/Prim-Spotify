@@ -155,6 +155,35 @@ def euclidean_distance(song1, song2):
     squared_diff = [(a - b) ** 2 for a, b in zip(attributes1, attributes2)]
     return math.sqrt(sum(squared_diff))
 
+def prim(graph, start_node, n_neighbors):
+    selected_nodes = set([start_node])
+    candidate_edges = []
+    similar_songs = []
+
+    while len(selected_nodes) < n_neighbors:
+        for node in selected_nodes:
+            candidate_edges.extend([(node, neighbor, data['weight']) for neighbor, data in graph[node].items() if neighbor not in selected_nodes])
+        
+        candidate_edges.sort(key=lambda x: x[2])  # Ordenar aristas por peso
+        
+        if not candidate_edges:
+            break
+        
+        min_edge = None
+        for edge in candidate_edges:
+            if edge[1] not in selected_nodes:
+                min_edge = edge
+                break
+            
+        if min_edge is None:
+            break
+        
+        candidate_edges.remove(min_edge)
+        selected_nodes.add(min_edge[1])
+        similar_songs.append((min_edge[0], min_edge[1], min_edge[2]))
+    
+    return similar_songs
+
 
 
 
