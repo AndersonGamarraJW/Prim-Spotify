@@ -2,6 +2,9 @@ import sys
 import os
 from PyQt6 import QtCore, QtGui
 import pandas as pd
+import networkx as nx
+import matplotlib.pyplot as plt
+import math
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
