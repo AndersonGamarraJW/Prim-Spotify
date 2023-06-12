@@ -4,7 +4,7 @@ from PyQt6 import QtCore, QtGui
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
-import math
+import math 
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -58,6 +58,57 @@ SPOTIFY = spotipy.Spotify(client_credentials_manager=credentials_manager)
 REM = 16
 
 df = pd.read_csv('music_genre.csv')
+
+
+#Song
+class Song:
+    def __init__(self,instance_id,artist_name,track_name,popularity,acousticness,
+                 danceability,duration_ms, energy,instrumentalness,key,liveness,
+                 loudness,mode,speechiness,tempo,obtained_date,valence,music_genre) -> None:
+        
+        self.__song_id = instance_id
+        self.__artist_name = artist_name
+        self.__name = track_name
+        self.__popularity = popularity
+        self.__duration_ms = duration_ms
+        self.__danceability = danceability
+        self.__energy = energy
+        self.__key = key
+        self.__mode = mode
+        self.__speechiness = speechiness
+        self.__acousticness = acousticness
+        self.__instrumentalness = instrumentalness
+        self.__liveness = liveness
+        self.__loudness = loudness
+        self.__date = obtained_date
+        self.__valance = valence
+        self.__tempo = tempo
+        self.__genre = music_genre
+    
+    def get_id(self):
+        return self.__song_id
+
+    def get_name(self):
+        return self.__name
+    
+    def get_danceability(self):
+        return self.__danceability
+    
+    def get_energy(self):
+        return self.__energy
+    
+    def get_acousticness(self):
+        return self.__acousticness
+    
+    def get_instrumentalness(self):
+        return self.__instrumentalness
+    
+    def get_tempo(self):
+        return self.__tempo
+
+
+
+
 
 
 class DirIconPath:
