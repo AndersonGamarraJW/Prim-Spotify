@@ -1,3 +1,13 @@
+#song-similar-info QLabel{
+    color: #DDDDDD;
+}
+#song-similar-info{
+    background-color: #222831;
+    border-radius: 10px;
+}
+SongListWindow{
+    background-color: white;
+}
 #album-cover-img{
 }
 #background{

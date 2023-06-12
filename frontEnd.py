@@ -88,6 +88,9 @@ class Song:
     def get_id(self):
         return self.__song_id
 
+    def get_artist(self):
+        return self.__artist_name
+    
     def get_name(self):
         return self.__name
     
@@ -105,6 +108,9 @@ class Song:
     
     def get_tempo(self):
         return self.__tempo
+
+    def get_genre(self):
+        return self.__genre
 
 def create_song_from_row(row):
     return Song(
@@ -198,6 +204,7 @@ class DirIconPath:
         file_path = os.path.join(self.__dir_icon_path,name_icon_file)
         return file_path
 
+DIR_ICON_PATH = DirIconPath()
 
 class MainPalletColor:
     BLACK = '#222831'
@@ -507,7 +514,78 @@ class CustomButton(QPushButton):
           
     def sizeHint(self) -> QSize:
         return QSize(150,30)
+
+class SongSimilarInfo(QWidget):
+    def __init__(self,name,artist,genre):
+        super().__init__()
+        self._query_str = f'track:{name} artist:{artist}'
+        
+        
+        self._main_layout = QHBoxLayout(self)
+        self._name_label = QLabel(name)
+        self._artist_label = QLabel(artist)
+        self._genre_label = QLabel(genre)
+        self._song_button = IconButton(
+            DIR_ICON_PATH.getIconFilePath('musica-white-icon.png'),
+            DIR_ICON_PATH.getIconFilePath('musica-black-icon.png'),
+            True
+        )
+        
+        self._main_layout.addWidget(self._name_label)
+        self._main_layout.addWidget(self._artist_label)
+        self._main_layout.addWidget(self._genre_label)
+        self._main_layout.addWidget(self._song_button)
+
+        self._song_button.clicked.connect(self._open_webbrowser_song)
+
+        self.setObjectName('song-similar-info')
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(10)
+        shadow.setColor(QColor(MainPalletColor.SHADOW))
+        shadow.setOffset(0,0)
+        self.setGraphicsEffect(shadow)
     
+    def _open_webbrowser_song(self):
+        result = SPOTIFY.search(q=self._query_str, type='track', limit=1)
+        if result['tracks']['items']:
+            url = result['tracks']['items'][0]['external_urls']['spotify']
+            QDesktopServices.openUrl(QUrl(url))
+        else:
+            return None
+        
+    def paintEvent(self, event):
+        o = QStyleOption()
+        o.initFrom(self)
+        painter = QPainter(self)
+        self.style().drawPrimitive(QStyle.PrimitiveElement.PE_Widget,o,painter,self)
+        
+        
+class SongListWindow(QWidget):
+    def __init__(self,similar_songs):
+        super().__init__()
+        self._main_layout = QVBoxLayout(self)
+        
+        
+        for song_relation_tuple in similar_songs:
+            #song_relation_tuple : (NodeSource : SongClass , NodeDest : SongClass , Weight:Float)
+            self._main_layout.addWidget(SongSimilarInfo(
+                song_relation_tuple[1].get_name(),
+                song_relation_tuple[1].get_artist(),
+                song_relation_tuple[1].get_genre()
+            ))
+            
+    
+    def sizeHint(self) -> QSize:
+        return QSize(1200,900)
+
+    def paintEvent(self, event):
+        o = QStyleOption()
+        o.initFrom(self)
+        painter = QPainter(self)
+        self.style().drawPrimitive(QStyle.PrimitiveElement.PE_Widget,o,painter,self)
+        
+        
+
 class MainWindow(QMainWindow):
     def __init__(self,graph_nx,songs_df):
         super().__init__()
@@ -577,13 +655,18 @@ class MainWindow(QMainWindow):
 
         # Generar lista de canciones similares
         similar_songs = prim(self.__graph_df, input_song, 15)
-
+        self._similar_songs_info_window = SongListWindow(similar_songs)
+        self._similar_songs_info_window.show()
+        
+            
+        """
         print('Cancion Base',input_song.get_name())
         # Imprimir lista de canciones similares
         print("Canciones similares:")
         for song1, song2, weight in similar_songs:
             print(f"- {song1.get_name()} <-> {song2.get_name()} (Peso: {weight})")
-    
+        """
+        
     def sizeHint(self) -> QtCore.QSize:
         return QtCore.QSize(1200,900)
 
