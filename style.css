@@ -5,6 +5,12 @@
 }
 MainWindow{
 }
+IconButton{
+    background-color: #DDDDDD;
+
+    border: 1px solid #222831;
+    border-radius: 10px;
+}
 #csv-selection {
     background-color: #DDDDDD;
     border-radius: 10px;

@@ -19,7 +19,7 @@ from PyQt6.QtWidgets import (
     QStyledItemDelegate,
     QStyleOptionViewItem
 )
-from PyQt6.QtCore import Qt,QSize,QEvent,QPropertyAnimation,QByteArray,QVariantAnimation,QEasingCurve, QTimer, QAbstractAnimation
+from PyQt6.QtCore import Qt,QSize,QEvent,QPropertyAnimation,QByteArray,QVariantAnimation,QEasingCurve, QTimer, QAbstractAnimation,QUrl
 from PyQt6.QtGui import (
     QStandardItemModel,
     QStandardItem,
@@ -33,7 +33,9 @@ from PyQt6.QtGui import (
     QPixmap,
     QPolygon,
     QRegion,
-    QBitmap
+    QBitmap,
+    QIcon,
+    QDesktopServices
 )
 
 import spotipy
@@ -53,6 +55,18 @@ SPOTIFY = spotipy.Spotify(client_credentials_manager=credentials_manager)
 REM = 16
 
 df = pd.read_csv('music_genre.csv')
+
+
+class DirIconPath:
+    def __init__(self) -> None:
+        self.__abs_program_path = os.path.abspath(__file__)
+        self.__abs_dir_program = os.path.dirname(self.__abs_program_path)
+        self.__dir_icon_path = os.path.join(self.__abs_dir_program,'img')
+    
+    def getIconFilePath(self,name_icon_file):
+        file_path = os.path.join(self.__dir_icon_path,name_icon_file)
+        return file_path
+
 
 class MainPalletColor:
     BLACK = '#222831'
@@ -146,20 +160,29 @@ class CSVViewer(QTableView):
         
         if result['tracks']['items']:
             album_cover_url = result['tracks']['items'][0]['album']['images'][1]['url']
+            album_url = result['tracks']['items'][0]['album']['external_urls']['spotify']
+            artist_url = result['tracks']['items'][0]['artists'][0]['external_urls']['spotify']
         else:
             album_cover_url =''
+            album_url = None
+            artist_url = None
+
             
         print(album_cover_url)
         
-        self._prev_csv_selection_widget.update_data(track_name, artist_name, popularity, duration, obt, genre,album_cover_url)
+        self._prev_csv_selection_widget.update_data(track_name, artist_name, popularity, duration, obt, genre,album_cover_url,album_url,artist_url)
       
     
 class PrevCsvSelection(QWidget):
     def __init__(self):
         super().__init__()
-        
+        #Dir Icon Path
+        dir_icon_path = DirIconPath()
+        #Layouts
         main_layout = QVBoxLayout()
         info_song_layout = QFormLayout()
+        buttons_layout = QHBoxLayout()
+        
         
         self.__album_image = QLabel()
         self.__album_image.setObjectName('album-cover-img')
@@ -169,6 +192,26 @@ class PrevCsvSelection(QWidget):
         info_song_layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
         info_song_layout.setFormAlignment(Qt.AlignmentFlag.AlignCenter)
         
+        #Buttons
+        self.__artist_button = IconButton(
+            dir_icon_path.getIconFilePath('artista-white-icon.png'),
+            dir_icon_path.getIconFilePath('artista-black-icon.png'),
+            True)
+        
+        self.__album_button = IconButton(
+            dir_icon_path.getIconFilePath('album-white-icon.png'),
+            dir_icon_path.getIconFilePath('album-black-icon.png'),
+            True
+        )
+        self._artist_url = None
+        self._album_url = None
+        self.__artist_button.clicked.connect(self._open_artist_spotify)
+        self.__album_button.clicked.connect(self._open_album_spotify)
+        
+        
+        buttons_layout.addWidget(self.__artist_button,alignment=Qt.AlignmentFlag.AlignHCenter)
+        buttons_layout.addWidget(self.__album_button,alignment=Qt.AlignmentFlag.AlignHCenter)
+        main_layout.addLayout(buttons_layout)
         
         self.__track_name_label = QLabel()
         self.__artist_name_label = QLabel()
@@ -198,7 +241,7 @@ class PrevCsvSelection(QWidget):
         self.setMaximumSize(325,500)
         self.setMinimumSize(325,500)
     
-    def update_data(self, track_name, artist_name, popularity, duration, obt, genre,album_url):
+    def update_data(self, track_name, artist_name, popularity, duration, obt, genre,album_cover_url,album_url,artist_url):
         self.__track_name_label.setText(track_name)
         self.__artist_name_label.setText(artist_name)
         self.__popularity_label.setText(str(popularity))
@@ -206,13 +249,32 @@ class PrevCsvSelection(QWidget):
         self.__obt_label.setText(obt)
         self.__genre.setText(genre)
         
-        if album_url:
+        if album_url != None:
+            self._album_url = album_url
+        else:
+            self._album_url = None
+        
+        if artist_url != None:
+            self._artist_url = artist_url
+        else:
+            self._artist_url = None
+        
+        
+        if album_cover_url:
             pixmap = QPixmap()
-            pixmap.loadFromData(requests.get(album_url).content)
+            pixmap.loadFromData(requests.get(album_cover_url).content)
             self.__album_image.setPixmap(pixmap.scaled(300,300))
         else:
             self.__album_image.clear()
-            
+        
+    
+    def _open_album_spotify(self):
+        if self._album_url != None:
+            QDesktopServices.openUrl(QUrl(self._album_url))
+        
+    def _open_artist_spotify(self):
+        if self._artist_url != None:
+            QDesktopServices.openUrl(QUrl(self._artist_url))
         
     
     def paintEvent(self, event):
@@ -222,13 +284,44 @@ class PrevCsvSelection(QWidget):
         self.style().drawPrimitive(QStyle.PrimitiveElement.PE_Widget,o,painter,self)
         
         
+class IconButton(QPushButton):
+    def __init__(self,icon_path,togle_icon_path='',toogle=False,text='',objectName=None):
+        super().__init__(text=text)
+        self._toogle_icon_path = ''
+        self._toogle_icon = None
+        self._main_icon = QIcon(icon_path)
 
+        if objectName != None:
+            self.setObjectName(objectName)
+        if toogle != False:
+            self._toogle_icon_path = togle_icon_path
+            self._toogle_icon = QIcon(self._toogle_icon_path)
+        
+          
+        self.setIcon(QIcon(self._main_icon))
+        self.setMinimumSize(40,40)
+        self.setMaximumSize(40,40)
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(10)
+        shadow.setColor(QColor(MainPalletColor.SHADOW))
+        shadow.setOffset(0,0)
+        self.setGraphicsEffect(shadow)
+        
+    def enterEvent(self, event) -> None:
+        if self._toogle_icon_path != '':
+            self.setIcon(self._toogle_icon)
+        super().enterEvent(event)
+    
+    def leaveEvent(self, event) -> None:
+        self.setIcon(self._main_icon)
+        super().leaveEvent(event)
+        
 class CustomButton(QPushButton):
     def __init__(self,text,objectName=None):
         super().__init__(text=text)
         if objectName != None:
             self.setObjectName(objectName)
-        
+            
         self.setMaximumSize(150,200)
         
         shadow = QGraphicsDropShadowEffect()
@@ -238,7 +331,7 @@ class CustomButton(QPushButton):
         self.setGraphicsEffect(shadow)
           
     def sizeHint(self) -> QSize:
-        return QSize(150,30)    
+        return QSize(150,30)
     
 class MainWindow(QMainWindow):
     def __init__(self):
