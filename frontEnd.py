@@ -208,7 +208,6 @@ class PrevCsvSelection(QWidget):
         self.__artist_button.clicked.connect(self._open_artist_spotify)
         self.__album_button.clicked.connect(self._open_album_spotify)
         
-        
         buttons_layout.addWidget(self.__artist_button,alignment=Qt.AlignmentFlag.AlignHCenter)
         buttons_layout.addWidget(self.__album_button,alignment=Qt.AlignmentFlag.AlignHCenter)
         main_layout.addLayout(buttons_layout)
@@ -249,6 +248,7 @@ class PrevCsvSelection(QWidget):
         self.__obt_label.setText(obt)
         self.__genre.setText(genre)
         
+        
         if album_url != None:
             self._album_url = album_url
         else:
@@ -259,11 +259,11 @@ class PrevCsvSelection(QWidget):
         else:
             self._artist_url = None
         
-        
         if album_cover_url:
             pixmap = QPixmap()
             pixmap.loadFromData(requests.get(album_cover_url).content)
             self.__album_image.setPixmap(pixmap.scaled(300,300))
+            
         else:
             self.__album_image.clear()
         
