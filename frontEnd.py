@@ -106,6 +106,54 @@ class Song:
     def get_tempo(self):
         return self.__tempo
 
+def create_song_from_row(row):
+    return Song(
+        row['instance_id'],
+        row['artist_name'],
+        row['track_name'],
+        row['popularity'],
+        row['acousticness'],
+        row['danceability'],
+        row['duration_ms'],
+        row['energy'],
+        row['instrumentalness'],
+        row['key'],
+        row['liveness'],
+        row['loudness'],
+        row['mode'],
+        row['speechiness'],
+        row['tempo'],
+        row['obtained_date'],
+        row['valence'],
+        row['music_genre'],
+        )
+
+class NearestNeighbors:
+    def __init__(self, n_neighbors) -> None:
+        self.n_neighbors = n_neighbors
+        self.songs = {}
+    
+   
+    def fit(self,songs):
+        self.songs = {song.get_id(): song for song in songs}
+    
+    def kneighbors(self,song):
+        distances = []
+        for song_id,s in self.songs.items():
+            distance = euclidean_distance(song,s)
+            distances.append((distance, s))
+        
+        distances.sort(key=lambda x:x[0])
+        
+        neighbors = [neighbor for _ , neighbor in distances[1:self.n_neighbors+1]]
+        
+        return neighbors
+ 
+def euclidean_distance(song1, song2):
+    attributes1 = [song1.get_danceability(), song1.get_energy(), song1.get_acousticness(), song1.get_instrumentalness()]
+    attributes2 = [song2.get_danceability(), song2.get_energy(), song2.get_acousticness(), song2.get_instrumentalness()]
+    squared_diff = [(a - b) ** 2 for a, b in zip(attributes1, attributes2)]
+    return math.sqrt(sum(squared_diff))
 
 
 
