@@ -19,3 +19,9 @@ Para poder instalar
 ```bash
 pip3 install <libreria>
 ```
+## Ejecucion
+
+Para poder ejecutar debemos ejecutar el archivo `frontEnd.py`
+```bash
+python3 frontEnd.py
+```
