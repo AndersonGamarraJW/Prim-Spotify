@@ -1,9 +1,11 @@
 # Prim-Spotify
+![Imagen del programa](./img/preview-program.png)
+
 Este proyeco realiza el algoritmo Prim en un dataset de Spotify
 
 Dataset : [Keagle](https://www.kaggle.com/datasets/javivaleiras/spotify-tracks-19202020)
 
-![Imagen del programa]
+
 
 ## Instalacion
 ### Librerias
