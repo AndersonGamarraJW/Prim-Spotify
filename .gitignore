@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#preview song file
+preview.mp3
 # C extensions
 *.so
 
