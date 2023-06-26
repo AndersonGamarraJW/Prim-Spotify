@@ -676,18 +676,18 @@ class MainWindow(QMainWindow):
             visualization_graph.add_edge(song1, song2, weight=weight)
 
         pos = nx.spring_layout(visualization_graph)
-        #Nodos
-        nx.draw_networkx_nodes(visualization_graph,pos,node_size=200,node_color='lightblue')
-        #Aristas
-        nx.draw_networkx_edges(visualization_graph,pos,width=1.0,alpha=0.5)
-        labels = {song:song.get_name() for song in visualization_graph.nodes}
-        nx.draw_networkx_labels(visualization_graph,pos,labels,font_size=8)
+         
+        plt.figure(facecolor='#DDDDDD')
         
-        #Mostrar
+        #Nodos y aristas
+        nx.draw_networkx_nodes(visualization_graph,pos,node_size=700,node_color='#30475E')
+        nx.draw_networkx_nodes(visualization_graph, pos, nodelist=[input_song], node_size=800, node_color='#F05454')
+        nx.draw_networkx_edges(visualization_graph, pos, width=1.0, alpha=0.5)
+        labels = {song: song.get_name() for song in visualization_graph.nodes}
+        nx.draw_networkx_labels(visualization_graph,pos,labels,font_size=7,font_color='#222831')
         plt.title('Songs')
         plt.axis('off')
         plt.show()
-        
         
     def sizeHint(self) -> QtCore.QSize:
         return QtCore.QSize(1200,900)
@@ -721,21 +721,7 @@ def main():
                 graph.add_edge(song,neighbor,weight=distance_value)
             
             print('Agrega Arista',len(graph.edges))
-    
-    
-    """
-    # Obtener la canción de entrada
-    input_song = songs[210]  # Aquí puedes cambiar el índice para seleccionar otra canción de entrada
-
-    # Generar lista de canciones similares
-    similar_songs = prim(graph, input_song, 15)
-
-    print('Cancion Base',input_song.get_name())
-    # Imprimir lista de canciones similares
-    print("Canciones similares:")
-    for song1, song2, weight in similar_songs:
-        print(f"- {song1.get_name()} <-> {song2.get_name()} (Peso: {weight})")
-    """
+     
     app = QApplication(sys.argv)
     file_path = os.path.abspath(__file__)
     dir_file_path = os.path.dirname(file_path)
@@ -748,17 +734,5 @@ def main():
     app.exec()
     
 
-if __name__ == '__main__':
-    """
-    app = QApplication(sys.argv)
-    file_path = os.path.abspath(__file__)
-    dir_file_path = os.path.dirname(file_path)
-    style_path = os.path.join(dir_file_path,'style.css')
-    with open(style_path,'r') as f:
-        style = f.read()
-    app.setStyleSheet(style)
-    main_window = MainWindow()
-    main_window.show()
-    app.exec()
-    """
+if __name__ == '__main__': 
     main()
