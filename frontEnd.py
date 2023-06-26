@@ -617,11 +617,12 @@ class MainWindow(QMainWindow):
         
         #Generate List Button
         self.__generate_list_button = CustomButton('Generate List','generate-list-button')
-        
+        self.__generate_tree_button = CustomButton('Generate Tree','generate-tree-button')
         
         right_layout.addStretch()
         right_layout.addWidget(self.__prev_csv_selection)
         right_layout.addWidget(self.__generate_list_button,alignment=Qt.AlignmentFlag.AlignCenter)
+        right_layout.addWidget(self.__generate_tree_button,alignment=Qt.AlignmentFlag.AlignCenter)
         right_layout.addStretch()
         right_layout.setSpacing(2*REM)
         #Layouts
@@ -642,7 +643,7 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(csv_viewer)
         
         self.__generate_list_button.clicked.connect(self._generate_list)
-       
+        self.__generate_tree_button.clicked.connect(self._generate_tree_songs)
         
         background = QWidget()
         background.setLayout(principal_layout)
@@ -666,6 +667,27 @@ class MainWindow(QMainWindow):
         for song1, song2, weight in similar_songs:
             print(f"- {song1.get_name()} <-> {song2.get_name()} (Peso: {weight})")
         """
+    def _generate_tree_songs(self):
+        input_song = self.__songs_df[self.__prev_csv_selection.get_current_song()] 
+        similar_songs = prim(self.__graph_df, input_song, 15)
+        visualization_graph = nx.Graph()
+
+        for song1, song2, weight in similar_songs:
+            visualization_graph.add_edge(song1, song2, weight=weight)
+
+        pos = nx.spring_layout(visualization_graph)
+        #Nodos
+        nx.draw_networkx_nodes(visualization_graph,pos,node_size=200,node_color='lightblue')
+        #Aristas
+        nx.draw_networkx_edges(visualization_graph,pos,width=1.0,alpha=0.5)
+        labels = {song:song.get_name() for song in visualization_graph.nodes}
+        nx.draw_networkx_labels(visualization_graph,pos,labels,font_size=8)
+        
+        #Mostrar
+        plt.title('Songs')
+        plt.axis('off')
+        plt.show()
+        
         
     def sizeHint(self) -> QtCore.QSize:
         return QtCore.QSize(1200,900)

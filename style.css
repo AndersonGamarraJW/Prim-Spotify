@@ -25,7 +25,7 @@ IconButton{
     background-color: #DDDDDD;
     border-radius: 10px;
 }
-#generate-list-button{
+#generate-list-button,#generate-tree-button{
     background-color: #F05454;
     color: #222831;
     border-radius: 10px;
